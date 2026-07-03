@@ -730,10 +730,29 @@ function handleLogo(file){
 // ── attachments ──
 function renderBox(id,name,data){
   var box=document.getElementById(id);if(!box)return;
+  var isPdf=name&&name.toLowerCase().endsWith('.pdf');
   if(data&&data.startsWith('data:image/')){
-    box.innerHTML='<img src="'+data+'" style="max-height:160px;width:auto;object-fit:contain;border-radius:8px;border:1px solid #e5e7eb;margin:0 auto;display:block"><p style="font-size:10px;color:#166a4c;font-weight:600;margin:8px 0 0;text-align:center">✓ '+name+'</p>';
-  }else{
-    box.innerHTML='<div style="text-align:center"><p style="font-size:12px;font-weight:700;color:#0c3b2d;margin:0">✓ Fail disimpan</p><p style="font-size:10px;color:#6b7280;margin:4px 0 0">'+name+'</p></div>';
+    box.innerHTML=
+      '<a href="'+data+'" target="_blank" rel="noopener" title="Klik untuk buka" style="display:block;cursor:pointer">'+
+        '<img src="'+data+'" style="max-height:160px;width:auto;object-fit:contain;border-radius:8px;border:1px solid #e5e7eb;margin:0 auto;display:block;transition:opacity .2s" onmouseover="this.style.opacity=\'.8\'" onmouseout="this.style.opacity=\'1\'">'+
+        '<p style="font-size:10px;color:#166a4c;font-weight:600;margin:8px 0 0;text-align:center">✓ '+name+' — <span style="text-decoration:underline">Klik untuk buka</span></p>'+
+      '</a>';
+  } else if(data&&isPdf){
+    box.innerHTML=
+      '<a href="'+data+'" target="_blank" rel="noopener" title="Klik untuk buka PDF" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;text-decoration:none;cursor:pointer">'+
+        '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><text x="6" y="18" font-size="5" fill="#ef4444" stroke="none" font-weight="700">PDF</text></svg>'+
+        '<p style="font-size:12px;font-weight:700;color:#0c3b2d;margin:0;text-align:center">'+name+'</p>'+
+        '<p style="font-size:10px;color:#166a4c;font-weight:600;margin:0;text-decoration:underline">Klik untuk buka PDF</p>'+
+      '</a>';
+  } else if(data){
+    box.innerHTML=
+      '<a href="'+data+'" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;text-decoration:none;cursor:pointer">'+
+        '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#166a4c" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+
+        '<p style="font-size:12px;font-weight:700;color:#0c3b2d;margin:0">'+name+'</p>'+
+        '<p style="font-size:10px;color:#166a4c;font-weight:600;margin:0;text-decoration:underline">Klik untuk buka fail</p>'+
+      '</a>';
+  } else {
+    box.innerHTML='<div style="text-align:center;padding:20px"><p style="font-size:12px;color:#9ca3af;font-weight:500;margin:0">Belum ada lampiran</p><p style="font-size:10px;color:#d1d5db;margin:4px 0 0">JPG, PNG atau PDF</p></div>';
   }
 }
 function loadAttachments(){

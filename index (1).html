@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="description" content="Panduan Pengurusan Pendaftaran Pengislaman Mualaf - Hidayah Centre Foundation Johor">
+<title>Panduan Pengislaman Mualaf - HCF Johor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{
+    margin:0;padding:0;height:100%;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    color:#1b2b22;background:#0c3b2d;
+    overflow:hidden;
+  }
+
+  /* ── SHELL ── */
+  #app-shell{
+    position:fixed;inset:0;
+    max-width:480px;margin:0 auto;
+    background:#fbf7ee;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  @media(min-width:481px){
+    body{background:#071f18}
+    #app-shell{
+      top:24px;bottom:24px;
+      border-radius:32px;
+      box-shadow:0 32px 80px rgba(0,0,0,.55),0 0 0 1px rgba(199,154,61,.25);
+    }
+  }
+
+  /* ── SCROLL AREA ── */
+  #app-content{
+    flex:1;overflow-y:auto;overflow-x:hidden;
+    padding:20px 16px 24px;
+    -webkit-overflow-scrolling:touch;
+    scroll-behavior:smooth;
+  }
+  #app-content::-webkit-scrollbar{width:4px}
+  #app-content::-webkit-scrollbar-thumb{background:#166a4c;border-radius:4px}
+
+  /* ── TABS ── */
+  .tab-panel{display:none}
+  .tab-panel.active{display:block;animation:fadeUp .22s ease both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ── BOTTOM NAV ── */
+  #bottom-nav{
+    flex-shrink:0;
+    background:#0c3b2d;
+    border-top:1.5px solid #c79a3d;
+    display:flex;
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  .nav-btn{
+    flex:1;display:flex;flex-direction:column;
+    align-items:center;gap:3px;
+    padding:10px 4px 8px;
+    color:#6aad8e;border:none;background:transparent;
+    cursor:pointer;position:relative;transition:color .2s;
+  }
+  .nav-btn.active{color:#e9c873}
+  .nav-btn.active::after{
+    content:'';position:absolute;top:0;left:20%;right:20%;
+    height:2px;border-radius:0 0 3px 3px;
+    background:#e9c873;
+  }
+  .nav-btn svg{width:20px;height:20px;stroke-width:1.8}
+  .nav-btn span{font-size:9px;font-weight:700;letter-spacing:.03em;line-height:1}
+
+  /* ── ADMIN ── */
+  #admin-bar{
+    flex-shrink:0;
+    background:#1b2b22;
+    display:none;
+    align-items:center;gap:8px;
+    padding:8px 12px;
+    overflow-x:auto;
+    border-top:1px solid rgba(199,154,61,.3);
+  }
+  body.admin-mode #admin-bar{display:flex}
+  body.admin-mode #admin-hint{display:block}
+  #admin-hint{display:none}
+  body.admin-mode #logo-upload-label{display:flex}
+  #logo-upload-label{display:none}
+
+  /* ── EDITABLE ── */
+  .edit-block{outline:none;border-radius:3px}
+  body.admin-mode .edit-block{
+    outline:1.5px dashed rgba(199,154,61,.5);
+    outline-offset:2px;cursor:text;
+  }
+  body.admin-mode .edit-block:focus{
+    outline:2px solid #c79a3d;background:#fffbe8;
+  }
+
+  /* ── SHOW/HIDE ADMIN ELEMENTS ── */
+  .admin-only{display:none}
+  body.admin-mode .admin-only{display:block}
+  .non-admin-only{display:block}
+  body.admin-mode .non-admin-only{display:none}
+  .remove-btn,.add-btn{display:none}
+  body.admin-mode .remove-btn,body.admin-mode .add-btn{display:inline-flex}
+
+  /* ── ACCORDION ── */
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .acc-item.open .acc-body{max-height:2400px}
+  .acc-item.open .chevron{transform:rotate(180deg)}
+  .chevron{transition:transform .25s ease;flex-shrink:0}
+
+  /* ── CARDS ── */
+  .card{background:#fff;border-radius:16px;border:1px solid #e8e4d9;box-shadow:0 2px 12px rgba(12,59,45,.06)}
+  .card-gold{background:#fff;border-radius:16px;border:1px solid rgba(199,154,61,.3);box-shadow:0 2px 12px rgba(199,154,61,.07)}
+
+  /* ── DESKTOP FRAME ── */
+  @media(min-width:481px){
+    body::before{
+      content:'';
+      position:fixed;inset:0;
+      background:radial-gradient(ellipse at 30% 20%,rgba(22,106,76,.3) 0%,transparent 60%),
+                 radial-gradient(ellipse at 70% 80%,rgba(199,154,61,.15) 0%,transparent 50%);
+      pointer-events:none;z-index:-1;
+    }
+  }
+
+  /* ── TOAST ── */
+  #toast{
+    position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+    max-width:88%;background:#1b2b22;color:#fff;
+    font-size:12px;font-weight:600;
+    padding:10px 18px;border-radius:20px;
+    box-shadow:0 8px 24px rgba(0,0,0,.3);
+    z-index:300;pointer-events:none;
+    opacity:0;transition:opacity .25s ease;
+    white-space:nowrap;
+  }
+
+  /* ── MODAL ── */
+  #modal-overlay{
+    display:none;position:fixed;inset:0;
+    background:rgba(0,0,0,.6);
+    z-index:400;align-items:center;justify-content:center;padding:24px;
+    backdrop-filter:blur(4px);
+  }
+</style>
+</head>
+<body>
+<div id="app-shell">
+
+  <!-- ═══ HEADER ═══ -->
+  <header style="background:linear-gradient(135deg,#0c3b2d 0%,#0f4d39 100%);flex-shrink:0;border-bottom:2px solid #c79a3d;padding:14px 16px 12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <!-- Logo -->
+      <div id="logo-wrap" style="width:48px;height:48px;border-radius:14px;background:#0c3b2d;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.2);overflow:hidden;position:relative">
+        <!-- fallback icon (shown when no logo) -->
+        <div id="logo-fb" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+          <svg viewBox="0 0 40 40" width="30" height="30" fill="none"><path d="M20 6a14 14 0 100 28 10 10 0 010-20 14 14 0 000-8z" fill="#e9c873"/><polygon points="26,4 27.5,8.5 32,8.5 28.5,11.5 30,16 26,13 22,16 23.5,11.5 20,8.5 24.5,8.5" fill="#e9c873"/></svg>
+        </div>
+        <!-- uploaded logo -->
+        <img id="logo-img" src="" alt="Logo HCF" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;padding:4px;background:#fff">
+        <!-- upload overlay — only visible in admin mode (CSS handles display) -->
+        <label id="logo-upload-label" style="position:absolute;inset:0;background:rgba(0,0,0,.7);cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#fff;font-size:8px;font-weight:700;text-align:center;z-index:10">
+          <span style="font-size:16px">📷</span><span>Tukar Logo</span>
+          <input id="logo-input" type="file" accept="image/*" style="display:none">
+        </label>
+      </div>
+      <!-- Title -->
+      <div style="flex:1;min-width:0">
+        <p style="font-family:'Amiri',serif;font-weight:700;font-size:13px;color:#e9c873;letter-spacing:.05em;line-height:1.3;margin:0">HIDAYAH CENTRE FOUNDATION JOHOR</p>
+        <p style="font-size:10px;color:rgba(207,227,218,.8);margin:2px 0 0;line-height:1.3">Panduan Pengurusan Pendaftaran Pengislaman</p>
+      </div>
+      <!-- Lock -->
+      <button id="admin-lock-btn" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.2)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">
+        <svg id="lock-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e9c873" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
+        <svg id="lock-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e9c873" stroke-width="2" style="display:none"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 017.8-1.2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ADMIN HINT -->
+  <div id="admin-hint" style="background:rgba(199,154,61,.18);border-bottom:1px solid rgba(199,154,61,.3);padding:7px 14px;font-size:11px;color:#5a3e00;flex-shrink:0">
+    Mod Admin aktif — tekan teks bergaris untuk edit. <strong>💾 Simpan</strong> atau <strong>⬇ Muat Turun</strong> selepas siap.
+  </div>
+
+  <!-- ═══ SCROLLABLE CONTENT ═══ -->
+  <div id="app-content">
+
+    <!-- ── TAB: INFO ── -->
+    <section class="tab-panel active" data-panel="info">
+
+      <!-- Hero banner -->
+      <div style="background:linear-gradient(135deg,#0c3b2d,#1a5c42);border-radius:20px;padding:24px 20px;margin-bottom:20px;text-align:center;border:1px solid rgba(199,154,61,.3);position:relative;overflow:hidden">
+        <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(199,154,61,.08)"></div>
+        <div style="position:absolute;bottom:-30px;left:-10px;width:80px;height:80px;border-radius:50%;background:rgba(199,154,61,.06)"></div>
+        <p style="font-size:10px;color:#e9c873;letter-spacing:.25em;text-transform:uppercase;margin:0 0 8px;font-weight:600">Assalamualaikum</p>
+        <h2 style="font-family:'Amiri',serif;font-size:22px;color:#fff;margin:0 0 6px;font-weight:700;line-height:1.3">Panduan Pendaftaran Pengislaman</h2>
+        <p style="font-size:11px;color:rgba(207,227,218,.75);margin:0;line-height:1.5">Panduan rasmi Hidayah Centre Foundation Johor untuk bakal mualaf, Rakan Hidayah dan pegawai.</p>
+      </div>
+
+      <!-- 1.1 -->
+      <p style="font-family:'Amiri',serif;font-size:18px;font-weight:700;color:#0c3b2d;margin:0 0 10px">1.1 Latar Belakang</p>
+      <div class="card" style="padding:16px;margin-bottom:20px">
+        <p class="edit-block" data-key="latar1" style="font-size:13px;line-height:1.7;color:#374151;margin:0 0 10px">Hidayah Centre (HC) telah ditubuhkan pada tahun 2005 sebagai satu institusi yang berkhidmat untuk menghubungkan komuniti daripada pelbagai etnik dan agama di Malaysia.</p>
+        <p class="edit-block" data-key="latar2" style="font-size:13px;line-height:1.7;color:#374151;margin:0">Pada 29 Februari 2012, Hidayah Centre Foundation telah diperbadankan secara rasmi di bawah Bahagian Hal Ehwal Undang-Undang (BHEUU), Jabatan Perdana Menteri dengan nombor pendaftaran PPAB-14/2012.</p>
+      </div>
+
+      <!-- 1.2 -->
+      <p style="font-family:'Amiri',serif;font-size:18px;font-weight:700;color:#0c3b2d;margin:0 0 10px">1.2 Objektif</p>
+      <div class="card" style="padding:16px;margin-bottom:4px">
+        <p class="edit-block" data-key="obj-intro" style="font-size:10px;font-weight:700;color:#166a4c;text-transform:uppercase;letter-spacing:.1em;margin:0 0 12px">Panduan ini bertujuan untuk:</p>
+        <ul id="list-obj" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
+          <li style="display:flex;align-items:flex-start;gap:10px" class="list-row"><span style="color:#c79a3d;margin-top:2px;flex-shrink:0">&#9670;</span><span class="edit-block" data-key="obj-1" style="font-size:13px;color:#374151;flex:1">Memberi panduan lengkap kepada Rakan Hidayah/Sukarelawan dan mualaf.</span><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+          <li style="display:flex;align-items:flex-start;gap:10px" class="list-row"><span style="color:#c79a3d;margin-top:2px;flex-shrink:0">&#9670;</span><span class="edit-block" data-key="obj-2" style="font-size:13px;color:#374151;flex:1">Menyeragamkan prosedur pengislaman di HCF Johor.</span><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+          <li style="display:flex;align-items:flex-start;gap:10px" class="list-row"><span style="color:#c79a3d;margin-top:2px;flex-shrink:0">&#9670;</span><span class="edit-block" data-key="obj-3" style="font-size:13px;color:#374151;flex:1">Memastikan dokumen yang diperlukan disediakan dengan lengkap sebelum syahadah.</span><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+          <li style="display:flex;align-items:flex-start;gap:10px" class="list-row"><span style="color:#c79a3d;margin-top:2px;flex-shrink:0">&#9670;</span><span class="edit-block" data-key="obj-4" style="font-size:13px;color:#374151;flex:1">Memudahkan proses pendaftaran mualaf.</span><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+          <li style="display:flex;align-items:flex-start;gap:10px" class="list-row"><span style="color:#c79a3d;margin-top:2px;flex-shrink:0">&#9670;</span><span class="edit-block" data-key="obj-5" style="font-size:13px;color:#374151;flex:1">Menjadi rujukan kepada pegawai HCF Johor.</span><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+        </ul>
+        <button data-add="list-obj" class="add-btn" style="margin-top:12px;font-size:11px;font-weight:700;color:#166a4c;background:rgba(22,106,76,.08);border:1px dashed #166a4c;border-radius:8px;padding:6px 12px;cursor:pointer;align-items:center;gap:6px">+ Tambah Objektif</button>
+      </div>
+    </section>
+
+    <!-- ── TAB: DOKUMEN ── -->
+    <section class="tab-panel" data-panel="dokumen">
+      <p style="font-family:'Amiri',serif;font-size:22px;font-weight:700;color:#0c3b2d;margin:0 0 4px">2.0 Dokumen Diperlukan</p>
+      <p style="font-size:11px;color:#6b7280;margin:0 0 18px">Persediaan dokumen penting sebelum dan selepas majlis syahadah.</p>
+
+      <!-- 2.1 Wajib -->
+      <div class="card" style="padding:16px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <div style="width:4px;height:20px;border-radius:2px;background:#166a4c;flex-shrink:0"></div>
+          <p style="font-family:'Amiri',serif;font-size:16px;font-weight:700;color:#0c3b2d;margin:0">2.1 Dokumen Wajib</p>
+        </div>
+        <p class="edit-block" data-key="wajib-intro" style="font-size:11px;color:#6b7280;margin:0 0 12px">Pemohon hendaklah menyediakan dokumen berikut sebelum majlis syahadah:</p>
+        <ul id="list-wajib" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
+          <li class="list-row" style="display:flex;align-items:flex-start;gap:10px;background:#f0fdf4;border-radius:10px;padding:10px 12px;border:1px solid #d1fae5"><div style="width:22px;height:22px;border-radius:50%;background:#dcfce7;border:1.5px solid #86efac;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#16a34a;font-weight:700;margin-top:1px">✓</div><div style="flex:1;min-width:0"><p class="edit-block" data-key="w1-j" style="font-size:12px;font-weight:700;color:#111827;margin:0">Salinan Kad Pengenalan</p><p class="edit-block" data-key="w1-d" style="font-size:11px;color:#6b7280;margin:3px 0 0">Disediakan bagi bahagian depan dan belakang.</p></div><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+          <li class="list-row" style="display:flex;align-items:flex-start;gap:10px;background:#f0fdf4;border-radius:10px;padding:10px 12px;border:1px solid #d1fae5"><div style="width:22px;height:22px;border-radius:50%;background:#dcfce7;border:1.5px solid #86efac;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#16a34a;font-weight:700;margin-top:1px">✓</div><div style="flex:1;min-width:0"><p class="edit-block" data-key="w2-j" style="font-size:12px;font-weight:700;color:#111827;margin:0">Empat (4) Keping Gambar Pasport</p><p class="edit-block" data-key="w2-d" style="font-size:11px;color:#6b7280;margin:3px 0 0">Berlatar belakang warna putih sahaja.</p></div><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+          <li class="list-row" style="display:flex;align-items:flex-start;gap:10px;background:#f0fdf4;border-radius:10px;padding:10px 12px;border:1px solid #d1fae5"><div style="width:22px;height:22px;border-radius:50%;background:#dcfce7;border:1.5px solid #86efac;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#16a34a;font-weight:700;margin-top:1px">✓</div><div style="flex:1;min-width:0"><p class="edit-block" data-key="w3-j" style="font-size:12px;font-weight:700;color:#111827;margin:0">Salinan e-Statement Bank</p><p class="edit-block" data-key="w3-d" style="font-size:11px;color:#6b7280;margin:3px 0 0">Salinan penyata akaun bank pemohon yang sah.</p></div><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+          <li class="list-row" style="display:flex;align-items:flex-start;gap:10px;background:#f0fdf4;border-radius:10px;padding:10px 12px;border:1px solid #d1fae5"><div style="width:22px;height:22px;border-radius:50%;background:#dcfce7;border:1.5px solid #86efac;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#16a34a;font-weight:700;margin-top:1px">✓</div><div style="flex:1;min-width:0"><p class="edit-block" data-key="w4-j" style="font-size:12px;font-weight:700;color:#111827;margin:0">Seorang Saksi Lelaki (Islam)</p><p class="edit-block" data-key="w4-d" style="font-size:11px;color:#6b7280;margin:3px 0 0">Sekurang-kurangnya seorang saksi mestilah Muslim.</p></div><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+          <li class="list-row" style="display:flex;align-items:flex-start;gap:10px;background:#f0fdf4;border-radius:10px;padding:10px 12px;border:1px solid #d1fae5"><div style="width:22px;height:22px;border-radius:50%;background:#dcfce7;border:1.5px solid #86efac;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#16a34a;font-weight:700;margin-top:1px">✓</div><div style="flex:1;min-width:0"><p class="edit-block" data-key="w5-j" style="font-size:12px;font-weight:700;color:#111827;margin:0">Salinan Kad Pengenalan Saksi</p><p class="edit-block" data-key="w5-d" style="font-size:11px;color:#6b7280;margin:3px 0 0">Sediakan salinan kad pengenalan bagi kedua-dua saksi.</p></div><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+        </ul>
+        <button data-add="list-wajib" class="add-btn" style="margin-top:10px;font-size:11px;font-weight:700;color:#166a4c;background:rgba(22,106,76,.08);border:1px dashed #166a4c;border-radius:8px;padding:6px 12px;cursor:pointer;align-items:center;gap:6px">+ Tambah Dokumen</button>
+      </div>
+
+      <!-- 2.2 Tukar Nama -->
+      <div class="card-gold" style="padding:16px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <div style="width:4px;height:20px;border-radius:2px;background:#c79a3d;flex-shrink:0"></div>
+          <p style="font-family:'Amiri',serif;font-size:16px;font-weight:700;color:#0c3b2d;margin:0">2.2 Jika Ingin Menukar Nama</p>
+        </div>
+        <p class="edit-block" data-key="tn-intro" style="font-size:11px;color:#6b7280;margin:0 0 12px">Dokumen tambahan sekiranya pemohon ingin menukar nama kepada nama Islam:</p>
+        <ul id="list-tn" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
+          <li class="list-row" style="display:flex;align-items:flex-start;gap:10px;background:#fffbeb;border-radius:10px;padding:10px 12px;border:1px solid #fde68a"><div style="width:22px;height:22px;border-radius:50%;background:#fef9c3;border:1.5px solid #fde047;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#a16207;font-weight:700;margin-top:1px">+</div><div style="flex:1;min-width:0"><p class="edit-block" data-key="tn1-j" style="font-size:12px;font-weight:700;color:#111827;margin:0">Salinan Sijil Perkahwinan Ibu Bapa</p><p class="edit-block" data-key="tn1-d" style="font-size:11px;color:#6b7280;margin:3px 0 0">Wajib disertakan untuk pengesahan nama keluarga.</p></div><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+          <li class="list-row" style="display:flex;align-items:flex-start;gap:10px;background:#fffbeb;border-radius:10px;padding:10px 12px;border:1px solid #fde68a"><div style="width:22px;height:22px;border-radius:50%;background:#fef9c3;border:1.5px solid #fde047;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#a16207;font-weight:700;margin-top:1px">+</div><div style="flex:1;min-width:0"><p class="edit-block" data-key="tn2-j" style="font-size:12px;font-weight:700;color:#111827;margin:0">Dokumen Sokongan Lain</p><p class="edit-block" data-key="tn2-d" style="font-size:11px;color:#6b7280;margin:3px 0 0">Contohnya: Sijil lahir asal (jika berkaitan).</p></div><button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+        </ul>
+        <button data-add="list-tn" class="add-btn" style="margin-top:10px;font-size:11px;font-weight:700;color:#a16207;background:rgba(199,154,61,.1);border:1px dashed #c79a3d;border-radius:8px;padding:6px 12px;cursor:pointer;align-items:center;gap:6px">+ Tambah Dokumen</button>
+      </div>
+
+      <!-- 2.3 Form -->
+      <div class="card" style="padding:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="width:4px;height:20px;border-radius:2px;background:#166a4c;flex-shrink:0"></div>
+          <p style="font-family:'Amiri',serif;font-size:16px;font-weight:700;color:#0c3b2d;margin:0">2.3 Maklumat Diperlukan</p>
+        </div>
+        <p class="edit-block" data-key="form-intro" style="font-size:11px;color:#6b7280;margin:0 0 6px">Isi maklumat di bawah dan hantar terus kepada pegawai HCF Johor melalui WhatsApp.</p>
+        <p id="wa-display" style="font-size:11px;font-weight:600;color:#166a4c;margin:0 0 10px">Nombor WhatsApp belum ditetapkan.</p>
+        <div class="admin-only" style="margin-bottom:10px">
+          <button id="btn-wa" style="font-size:11px;font-weight:700;color:#c79a3d;border:1px solid rgba(199,154,61,.4);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer">✎ Tukar Nombor WhatsApp</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Nama Asal</label><input id="f-1" type="text" placeholder="Nama Asal" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Nama Baru (Islam)</label><input id="f-2" type="text" placeholder="Nama Baru" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Agama / Kepercayaan Terdahulu</label><input id="f-3" type="text" placeholder="Agama Terdahulu" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Bangsa</label><input id="f-4" type="text" placeholder="Bangsa" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Warganegara</label><input id="f-5" type="text" placeholder="Warganegara" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">No. Kad Pengenalan / Pasport</label><input id="f-6" type="text" placeholder="No. IC / Pasport" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Tarikh Lahir</label><input id="f-7" type="text" placeholder="cth: 01/01/1990" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Tempat Lahir</label><input id="f-8" type="text" placeholder="Tempat Lahir" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Status Perkahwinan</label><input id="f-9" type="text" placeholder="Status Perkahwinan" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Alamat Surat Menyurat</label><input id="f-10" type="text" placeholder="Alamat" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Bahasa</label><input id="f-11" type="text" placeholder="Bahasa" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Tahap Pendidikan</label><input id="f-12" type="text" placeholder="Tahap Pendidikan" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">No. Telefon / Emel</label><input id="f-13" type="text" placeholder="No. Telefon / Emel" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Pekerjaan</label><input id="f-14" type="text" placeholder="Pekerjaan" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div><label style="display:block;font-size:10px;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Alamat Tempat Kerja</label><input id="f-15" type="text" placeholder="Alamat Tempat Kerja" style="width:100%;font-size:12px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fafaf8;padding:9px 12px;outline:none;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#e5e7eb'"></div>
+        </div>
+        <button id="btn-wa-send" style="margin-top:16px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;font-size:13px;font-weight:700;padding:13px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(22,163,74,.3);font-family:inherit;transition:opacity .2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 004.79 1.22h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7C17.18 3.03 14.68 2 12.04 2zm0 18.1a8.2 8.2 0 01-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 01-1.26-4.34c0-4.53 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 012.4 5.82c0 4.53-3.7 8.19-8.24 8.19zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.4-.12-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43s.16-.25.25-.41c.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01-.17 0-.43.06-.66.31-.23.25-.86.84-.86 2.05 0 1.21.88 2.38 1 2.54.12.17 1.74 2.65 4.21 3.72.59.25 1.05.4 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
+          Hantar Maklumat ke WhatsApp
+        </button>
+      </div>
+    </section>
+
+    <!-- ── TAB: PROSES ── -->
+    <section class="tab-panel" data-panel="proses">
+      <p style="font-family:'Amiri',serif;font-size:22px;font-weight:700;color:#0c3b2d;margin:0 0 4px">3.0 Proses Pendaftaran</p>
+      <p style="font-size:11px;color:#6b7280;margin:0 0 18px">Klik setiap langkah untuk lihat butiran penuh.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+
+        <!-- Step template reused 7× -->
+        <div class="acc-item card" style="overflow:hidden">
+          <button class="acc-header" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left">
+            <span style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0c3b2d,#166a4c);color:#e9c873;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span>
+            <span style="font-family:'Amiri',serif;font-size:15px;font-weight:700;color:#0c3b2d;flex:1;text-align:left">Penerangan Tentang Islam (ASARA-PK)</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="acc-body"><div style="padding:0 16px 16px;border-top:1px solid #f3f4f6">
+            <p class="edit-block" data-key="l1-desc" style="font-size:13px;color:#4b5563;line-height:1.7;margin:12px 0">Sesi penerangan Islam bertujuan memberi kefahaman asas mengenai ajaran agama Islam sebelum seseorang mualaf membuat keputusan memeluk Islam.</p>
+            <div style="background:#f0fdf4;border-radius:10px;padding:12px;border:1px solid #d1fae5">
+              <p style="font-size:10px;font-weight:700;color:#166a4c;text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px">Perkara Yang Akan Diterangkan</p>
+              <ul id="list-l1" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px">
+                <li class="list-row" style="display:flex;align-items:center;gap:8px"><span style="color:#c79a3d;font-size:10px">•</span><span class="edit-block" data-key="l1-p1" style="font-size:12px;color:#374151;flex:1">Konsep Ketuhanan Dalam Islam</span><button class="remove-btn" style="width:16px;height:16px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+                <li class="list-row" style="display:flex;align-items:center;gap:8px"><span style="color:#c79a3d;font-size:10px">•</span><span class="edit-block" data-key="l1-p2" style="font-size:12px;color:#374151;flex:1">Rukun Iman &amp; Rukun Islam</span><button class="remove-btn" style="width:16px;height:16px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+                <li class="list-row" style="display:flex;align-items:center;gap:8px"><span style="color:#c79a3d;font-size:10px">•</span><span class="edit-block" data-key="l1-p3" style="font-size:12px;color:#374151;flex:1">Akhlak Muslim &amp; Tanggungjawab</span><button class="remove-btn" style="width:16px;height:16px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+                <li class="list-row" style="display:flex;align-items:center;gap:8px"><span style="color:#c79a3d;font-size:10px">•</span><span class="edit-block" data-key="l1-p4" style="font-size:12px;color:#374151;flex:1">Kehidupan Selepas Pengislaman</span><button class="remove-btn" style="width:16px;height:16px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+              </ul>
+              <button data-add="list-l1" class="add-btn" style="margin-top:8px;font-size:11px;font-weight:700;color:#166a4c;background:rgba(22,106,76,.08);border:1px dashed #166a4c;border-radius:6px;padding:4px 10px;cursor:pointer;align-items:center;gap:4px">+ Tambah</button>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="acc-item card" style="overflow:hidden">
+          <button class="acc-header" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left">
+            <span style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0c3b2d,#166a4c);color:#e9c873;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span>
+            <span style="font-family:'Amiri',serif;font-size:15px;font-weight:700;color:#0c3b2d;flex:1;text-align:left">Melafazkan Syahadah</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="acc-body"><div style="padding:0 16px 16px;border-top:1px solid #f3f4f6">
+            <p class="edit-block" data-key="l2-desc" style="font-size:13px;color:#4b5563;line-height:1.7;margin:12px 0">Setelah memahami asas agama Islam dan bersedia, pemohon akan dibimbing melafazkan Dua Kalimah Syahadah secara sukarela.</p>
+            <div style="background:linear-gradient(135deg,#0c3b2d,#1a5c42);border-radius:14px;padding:20px;text-align:center">
+              <p style="font-size:10px;color:#e9c873;letter-spacing:.2em;text-transform:uppercase;margin:0 0 10px;font-weight:600">Lafaz Syahadah</p>
+              <p style="font-family:'Amiri',serif;font-size:22px;color:#fff;line-height:1.8;margin:0 0 12px" dir="rtl">أشهد أن لا إله إلا الله وأشهد أن محمدًا رسول الله</p>
+              <p class="edit-block" data-key="l2-terjemahan" style="font-size:11px;color:rgba(207,227,218,.85);font-style:italic;margin:0;line-height:1.6">"Aku bersaksi bahawa tiada Tuhan yang berhak disembah melainkan Allah dan aku bersaksi bahawa Nabi Muhammad SAW ialah pesuruh Allah."</p>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="acc-item card" style="overflow:hidden">
+          <button class="acc-header" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left">
+            <span style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0c3b2d,#166a4c);color:#e9c873;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span>
+            <span style="font-family:'Amiri',serif;font-size:15px;font-weight:700;color:#0c3b2d;flex:1;text-align:left">Mengisi Borang Ikrar Memeluk Islam</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="acc-body"><div style="padding:0 16px 16px;border-top:1px solid #f3f4f6">
+            <p class="edit-block" data-key="l3-desc" style="font-size:13px;color:#4b5563;line-height:1.7;margin:12px 0">Selepas syahadah, pemohon hendaklah melengkapkan Borang Ikrar Memeluk Islam untuk dibawa ke Pejabat Agama Johor bagi pengesahan.</p>
+          </div></div>
+        </div>
+
+        <div class="acc-item card" style="overflow:hidden">
+          <button class="acc-header" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left">
+            <span style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0c3b2d,#166a4c);color:#e9c873;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</span>
+            <span style="font-family:'Amiri',serif;font-size:15px;font-weight:700;color:#0c3b2d;flex:1;text-align:left">Borang Permohonan Pendaftaran Mualaf</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="acc-body"><div style="padding:0 16px 16px;border-top:1px solid #f3f4f6">
+            <p class="edit-block" data-key="l4-desc" style="font-size:13px;color:#4b5563;line-height:1.7;margin:12px 0">Pemohon hendaklah mengisi Borang Permohonan Pendaftaran Mualaf dengan lengkap untuk simpanan fail rekod rasmi.</p>
+          </div></div>
+        </div>
+
+        <div class="acc-item card" style="overflow:hidden">
+          <button class="acc-header" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left">
+            <span style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0c3b2d,#166a4c);color:#e9c873;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</span>
+            <span style="font-family:'Amiri',serif;font-size:15px;font-weight:700;color:#0c3b2d;flex:1;text-align:left">Membuat Laporan Polis</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="acc-body"><div style="padding:0 16px 16px;border-top:1px solid #f3f4f6">
+            <p class="edit-block" data-key="l5-desc" style="font-size:13px;color:#4b5563;line-height:1.7;margin:12px 0">Laporan polis dibuat bagi mengesahkan bahawa pemohon memeluk agama Islam secara sukarela dan tanpa paksaan.</p>
+            <div style="background:#f8fafc;border-radius:10px;padding:12px;border:1px solid #e2e8f0">
+              <p style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px">Dokumen Yang Perlu Dibawa</p>
+              <ul id="list-l5" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px">
+                <li class="list-row" style="display:flex;align-items:center;gap:8px"><span style="color:#c79a3d;font-size:11px;font-weight:700;flex-shrink:0">1.</span><span class="edit-block" data-key="l5-d1" style="font-size:12px;color:#374151;flex:1">Kad Pengenalan Asal</span><button class="remove-btn" style="width:16px;height:16px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+                <li class="list-row" style="display:flex;align-items:center;gap:8px"><span style="color:#c79a3d;font-size:11px;font-weight:700;flex-shrink:0">2.</span><span class="edit-block" data-key="l5-d2" style="font-size:12px;color:#374151;flex:1">Borang Ikrar Memeluk Islam</span><button class="remove-btn" style="width:16px;height:16px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+              </ul>
+              <button data-add="list-l5" class="add-btn" style="margin-top:8px;font-size:11px;font-weight:700;color:#166a4c;background:rgba(22,106,76,.08);border:1px dashed #166a4c;border-radius:6px;padding:4px 10px;cursor:pointer;align-items:center;gap:4px">+ Tambah</button>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="acc-item card" style="overflow:hidden">
+          <button class="acc-header" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left">
+            <span style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0c3b2d,#166a4c);color:#e9c873;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">6</span>
+            <span style="font-family:'Amiri',serif;font-size:15px;font-weight:700;color:#0c3b2d;flex:1;text-align:left">Akuan Sumpah Di Pesuruhjaya Sumpah</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="acc-body"><div style="padding:0 16px 16px;border-top:1px solid #f3f4f6">
+            <p class="edit-block" data-key="l6-desc" style="font-size:13px;color:#4b5563;line-height:1.7;margin:12px 0">Pemohon hendaklah hadir ke pejabat Pesuruhjaya Sumpah bagi membuat Akuan Sumpah Pengislaman.</p>
+            <div style="background:#fffbeb;border-radius:10px;padding:12px;border:1px solid #fde68a;font-size:12px;color:#78350f">
+              <strong>Pesuruhjaya Disyorkan:</strong> <span class="edit-block" data-key="l6-nota">Zainurani binti Omar — 23A Bangunan Kerjasama, Jalan Dhobi, 80000 Johor Bahru, Johor.</span>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="acc-item card" style="overflow:hidden">
+          <button class="acc-header" style="width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:transparent;border:none;cursor:pointer;text-align:left">
+            <span style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0c3b2d,#166a4c);color:#e9c873;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">7</span>
+            <span style="font-family:'Amiri',serif;font-size:15px;font-weight:700;color:#0c3b2d;flex:1;text-align:left">Penyerahan Dokumen Kepada HCF Johor</span>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="acc-body"><div style="padding:0 16px 16px;border-top:1px solid #f3f4f6">
+            <p class="edit-block" data-key="l7-desc" style="font-size:13px;color:#4b5563;line-height:1.7;margin:12px 0">Selepas selesai urusan laporan polis dan akuan sumpah, pemohon hendaklah menyerahkan dokumen yang dilengkapkan kepada HCF Johor.</p>
+            <div style="background:#f8fafc;border-radius:10px;padding:12px;border:1px solid #e2e8f0">
+              <p style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px">Dokumen Wajib Diserahkan</p>
+              <ul id="list-l7" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px">
+                <li class="list-row" style="display:flex;align-items:center;gap:8px"><span style="color:#c79a3d;font-size:12px;flex-shrink:0">☐</span><span class="edit-block" data-key="l7-d1" style="font-size:12px;color:#374151;flex:1">Borang Ikrar Memeluk Islam</span><button class="remove-btn" style="width:16px;height:16px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+                <li class="list-row" style="display:flex;align-items:center;gap:8px"><span style="color:#c79a3d;font-size:12px;flex-shrink:0">☐</span><span class="edit-block" data-key="l7-d2" style="font-size:12px;color:#374151;flex:1">Laporan Polis</span><button class="remove-btn" style="width:16px;height:16px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+                <li class="list-row" style="display:flex;align-items:center;gap:8px"><span style="color:#c79a3d;font-size:12px;flex-shrink:0">☐</span><span class="edit-block" data-key="l7-d3" style="font-size:12px;color:#374151;flex:1">Akuan Sumpah</span><button class="remove-btn" style="width:16px;height:16px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0">×</button></li>
+              </ul>
+              <button data-add="list-l7" class="add-btn" style="margin-top:8px;font-size:11px;font-weight:700;color:#166a4c;background:rgba(22,106,76,.08);border:1px dashed #166a4c;border-radius:6px;padding:4px 10px;cursor:pointer;align-items:center;gap:4px">+ Tambah</button>
+            </div>
+          </div></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── TAB: LOKASI ── -->
+    <section class="tab-panel" data-panel="lokasi">
+      <p style="font-family:'Amiri',serif;font-size:22px;font-weight:700;color:#0c3b2d;margin:0 0 4px">Lokasi &amp; Alamat Penting</p>
+      <p style="font-size:11px;color:#6b7280;margin:0 0 18px">Klik "Buka Peta" untuk navigasi terus melalui Google Maps.</p>
+      <ul id="list-lokasi" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px">
+        <li class="list-row card" style="padding:14px 16px">
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">
+            <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0c3b2d,#166a4c);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e9c873" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 1114 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.3"/></svg></div>
+            <div style="flex:1;min-width:0">
+              <p class="edit-block" data-key="lok1-j" style="font-size:13px;font-weight:700;color:#111827;margin:0">Jabatan Agama Islam Johor</p>
+              <p class="edit-block" data-key="lok1-d" style="font-size:11px;color:#6b7280;margin:3px 0 0">Blok B, Aras 2</p>
+            </div>
+            <button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="https://maps.app.goo.gl/PejKkayCimgcuQhAA" data-url="https://maps.app.goo.gl/PejKkayCimgcuQhAA" target="_blank" rel="noopener noreferrer" class="map-link" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#fff;background:#166a4c;padding:7px 14px;border-radius:8px;text-decoration:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 1114 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Buka Peta</a>
+            <button class="edit-link-btn admin-only" style="font-size:11px;font-weight:700;color:#c79a3d;border:1px solid rgba(199,154,61,.4);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer">✎ Tukar Pautan</button>
+          </div>
+        </li>
+        <li class="list-row card" style="padding:14px 16px">
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">
+            <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0c3b2d,#166a4c);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e9c873" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 1114 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.3"/></svg></div>
+            <div style="flex:1;min-width:0">
+              <p class="edit-block" data-key="lok2-j" style="font-size:13px;font-weight:700;color:#111827;margin:0">Balai Polis Sentral Johor Bahru</p>
+              <p class="edit-block" data-key="lok2-d" style="font-size:11px;color:#6b7280;margin:3px 0 0">Untuk membuat laporan polis pengislaman.</p>
+            </div>
+            <button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="https://maps.app.goo.gl/rantCDQJK5wB3Mu68" data-url="https://maps.app.goo.gl/rantCDQJK5wB3Mu68" target="_blank" rel="noopener noreferrer" class="map-link" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#fff;background:#166a4c;padding:7px 14px;border-radius:8px;text-decoration:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 1114 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Buka Peta</a>
+            <button class="edit-link-btn admin-only" style="font-size:11px;font-weight:700;color:#c79a3d;border:1px solid rgba(199,154,61,.4);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer">✎ Tukar Pautan</button>
+          </div>
+        </li>
+        <li class="list-row card" style="padding:14px 16px">
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">
+            <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0c3b2d,#166a4c);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e9c873" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 1114 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.3"/></svg></div>
+            <div style="flex:1;min-width:0">
+              <p class="edit-block" data-key="lok3-j" style="font-size:13px;font-weight:700;color:#111827;margin:0">Pesuruhjaya Sumpah</p>
+              <p class="edit-block" data-key="lok3-d" style="font-size:11px;color:#6b7280;margin:3px 0 0">Zainurani binti Omar — 23A Bangunan Kerjasama, Jalan Dhobi, 80000 JB.</p>
+            </div>
+            <button class="remove-btn" style="width:18px;height:18px;border-radius:50%;background:#fee2e2;color:#ef4444;border:none;cursor:pointer;font-size:11px;align-items:center;justify-content:center;flex-shrink:0">×</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="https://maps.app.goo.gl/NR1Tfj6zstaTz4ux7" data-url="https://maps.app.goo.gl/NR1Tfj6zstaTz4ux7" target="_blank" rel="noopener noreferrer" class="map-link" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#fff;background:#166a4c;padding:7px 14px;border-radius:8px;text-decoration:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 1114 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.3"/></svg>Buka Peta</a>
+            <button class="edit-link-btn admin-only" style="font-size:11px;font-weight:700;color:#c79a3d;border:1px solid rgba(199,154,61,.4);background:transparent;border-radius:8px;padding:6px 12px;cursor:pointer">✎ Tukar Pautan</button>
+          </div>
+        </li>
+      </ul>
+      <button data-add="list-lokasi" class="add-btn" style="margin-top:12px;font-size:11px;font-weight:700;color:#166a4c;background:rgba(22,106,76,.08);border:1px dashed #166a4c;border-radius:10px;padding:10px;cursor:pointer;align-items:center;gap:6px;width:100%;justify-content:center">+ Tambah Lokasi</button>
+    </section>
+
+    <!-- ── TAB: LAMPIRAN ── -->
+    <section class="tab-panel" data-panel="lampiran">
+      <p style="font-family:'Amiri',serif;font-size:22px;font-weight:700;color:#0c3b2d;margin:0 0 4px">5.0 Ruang Lampiran</p>
+      <p style="font-size:11px;color:#6b7280;margin:0 0 18px">Muat naik sampel atau borang rasmi terus ke dalam panduan ini.</p>
+      <div style="display:flex;flex-direction:column;gap:14px" id="lampiran-list">
+        <div class="card" style="padding:14px;position:relative">
+          <span style="position:absolute;top:12px;right:12px;background:#0c3b2d;color:#e9c873;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.08em">LAMPIRAN A</span>
+          <p class="edit-block" data-key="lamA-j" style="font-size:13px;font-weight:700;color:#111827;margin:0 0 4px;padding-right:80px">Borang Ikrar Memeluk Islam</p>
+          <p class="edit-block" data-key="lamA-d" style="font-size:11px;color:#6b7280;margin:0 0 10px">Sila muat naik imej atau PDF borang ikrar memeluk Islam.</p>
+          <div class="admin-only"><input type="file" accept="image/*,application/pdf" data-preview="preview-A" class="file-input" style="display:block;width:100%;font-size:11px;color:#6b7280;margin-bottom:10px"></div>
+          <p class="non-admin-only" style="font-size:11px;color:#9ca3af;font-style:italic;margin:0 0 10px">Hanya admin boleh memuat naik dokumen.</p>
+          <div id="preview-A" style="border:2px dashed #d1d5db;border-radius:10px;min-height:90px;background:#fafaf8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px;text-align:center"><span style="font-size:12px;color:#9ca3af;font-weight:500">Belum ada lampiran</span><span style="font-size:10px;color:#d1d5db">JPG, PNG atau PDF</span></div>
+        </div>
+        <div class="card" style="padding:14px;position:relative">
+          <span style="position:absolute;top:12px;right:12px;background:#0c3b2d;color:#e9c873;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.08em">LAMPIRAN B</span>
+          <p class="edit-block" data-key="lamB-j" style="font-size:13px;font-weight:700;color:#111827;margin:0 0 4px;padding-right:80px">Borang Permohonan Pendaftaran Mualaf</p>
+          <p class="edit-block" data-key="lamB-d" style="font-size:11px;color:#6b7280;margin:0 0 10px">Sila muat naik contoh atau borang pendaftaran mualaf rasmi.</p>
+          <div class="admin-only"><input type="file" accept="image/*,application/pdf" data-preview="preview-B" class="file-input" style="display:block;width:100%;font-size:11px;color:#6b7280;margin-bottom:10px"></div>
+          <p class="non-admin-only" style="font-size:11px;color:#9ca3af;font-style:italic;margin:0 0 10px">Hanya admin boleh memuat naik dokumen.</p>
+          <div id="preview-B" style="border:2px dashed #d1d5db;border-radius:10px;min-height:90px;background:#fafaf8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px;text-align:center"><span style="font-size:12px;color:#9ca3af;font-weight:500">Belum ada lampiran</span><span style="font-size:10px;color:#d1d5db">JPG, PNG atau PDF</span></div>
+        </div>
+        <div class="card" style="padding:14px;position:relative">
+          <span style="position:absolute;top:12px;right:12px;background:#0c3b2d;color:#e9c873;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.08em">LAMPIRAN C</span>
+          <p class="edit-block" data-key="lamC-j" style="font-size:13px;font-weight:700;color:#111827;margin:0 0 4px;padding-right:80px">Contoh Laporan Polis</p>
+          <p class="edit-block" data-key="lamC-d" style="font-size:11px;color:#6b7280;margin:0 0 10px">Sila muat naik sampel salinan laporan polis yang telah siap diisi/dicop.</p>
+          <div class="admin-only"><input type="file" accept="image/*,application/pdf" data-preview="preview-C" class="file-input" style="display:block;width:100%;font-size:11px;color:#6b7280;margin-bottom:10px"></div>
+          <p class="non-admin-only" style="font-size:11px;color:#9ca3af;font-style:italic;margin:0 0 10px">Hanya admin boleh memuat naik dokumen.</p>
+          <div id="preview-C" style="border:2px dashed #d1d5db;border-radius:10px;min-height:90px;background:#fafaf8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px;text-align:center"><span style="font-size:12px;color:#9ca3af;font-weight:500">Belum ada lampiran</span><span style="font-size:10px;color:#d1d5db">JPG, PNG atau PDF</span></div>
+        </div>
+        <div class="card" style="padding:14px;position:relative">
+          <span style="position:absolute;top:12px;right:12px;background:#0c3b2d;color:#e9c873;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.08em">LAMPIRAN D</span>
+          <p class="edit-block" data-key="lamD-j" style="font-size:13px;font-weight:700;color:#111827;margin:0 0 4px;padding-right:80px">Contoh Akuan Sumpah</p>
+          <p class="edit-block" data-key="lamD-d" style="font-size:11px;color:#6b7280;margin:0 0 10px">Sila muat naik sampel borang akuan sumpah di hadapan Pesuruhjaya Sumpah.</p>
+          <div class="admin-only"><input type="file" accept="image/*,application/pdf" data-preview="preview-D" class="file-input" style="display:block;width:100%;font-size:11px;color:#6b7280;margin-bottom:10px"></div>
+          <p class="non-admin-only" style="font-size:11px;color:#9ca3af;font-style:italic;margin:0 0 10px">Hanya admin boleh memuat naik dokumen.</p>
+          <div id="preview-D" style="border:2px dashed #d1d5db;border-radius:10px;min-height:90px;background:#fafaf8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px;text-align:center"><span style="font-size:12px;color:#9ca3af;font-weight:500">Belum ada lampiran</span><span style="font-size:10px;color:#d1d5db">JPG, PNG atau PDF</span></div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /app-content -->
+
+  <!-- ═══ ADMIN BAR ═══ -->
+  <div id="admin-bar">
+    <button id="btn-save" style="display:flex;align-items:center;gap:6px;background:#c79a3d;color:#1b2b22;font-size:11px;font-weight:700;padding:7px 14px;border-radius:8px;border:none;cursor:pointer;flex-shrink:0;font-family:inherit">💾 Simpan</button>
+    <button id="btn-export" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-weight:700;padding:7px 14px;border-radius:8px;border:none;cursor:pointer;flex-shrink:0;font-family:inherit">⬇ Muat Turun</button>
+    <button id="btn-reset" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-weight:700;padding:7px 14px;border-radius:8px;border:none;cursor:pointer;flex-shrink:0;font-family:inherit">↺ Set Semula</button>
+    <button id="btn-exit" style="display:flex;align-items:center;gap:6px;background:rgba(239,68,68,.7);color:#fff;font-size:11px;font-weight:700;padding:7px 14px;border-radius:8px;border:none;cursor:pointer;flex-shrink:0;font-family:inherit;margin-left:auto">✕ Keluar</button>
+  </div>
+
+  <!-- ═══ BOTTOM NAV ═══ -->
+  <nav id="bottom-nav">
+    <button class="nav-btn active" data-tab="info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      <span>Info</span>
+    </button>
+    <button class="nav-btn" data-tab="dokumen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12h6m-6 4h6M9 8h6M5 21V5a2 2 0 012-2h7l5 5v13a2 2 0 01-2 2H7a2 2 0 01-2-2z"/></svg>
+      <span>Dokumen</span>
+    </button>
+    <button class="nav-btn" data-tab="proses">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg>
+      <span>Proses</span>
+    </button>
+    <button class="nav-btn" data-tab="lokasi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21s-7-6.1-7-11a7 7 0 1114 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+      <span>Lokasi</span>
+    </button>
+    <button class="nav-btn" data-tab="lampiran">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.44 11.05l-9.19 9.19a5 5 0 01-7.07-7.07l9.19-9.19a3.5 3.5 0 014.95 4.95l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+      <span>Lampiran</span>
+    </button>
+  </nav>
+
+</div><!-- /app-shell -->
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL -->
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)">
+  <div style="background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.3);width:100%;max-width:340px;padding:24px">
+    <p id="modal-title" style="font-family:'Amiri',serif;font-size:18px;font-weight:700;color:#0c3b2d;margin:0 0 6px"></p>
+    <p id="modal-desc" style="font-size:12px;color:#6b7280;margin:0 0 14px"></p>
+    <input id="modal-input" type="text" style="width:100%;font-size:13px;border-radius:10px;border:1.5px solid #d1d5db;padding:10px 12px;outline:none;margin-bottom:16px;font-family:inherit;transition:border .2s" onfocus="this.style.borderColor='#166a4c'" onblur="this.style.borderColor='#d1d5db'">
+    <div style="display:flex;gap:10px">
+      <button id="modal-cancel" style="flex:1;font-size:12px;font-weight:700;color:#374151;background:#f3f4f6;border:none;border-radius:10px;padding:11px;cursor:pointer;font-family:inherit">Batal</button>
+      <button id="modal-ok" style="flex:1;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#0c3b2d,#166a4c);border:none;border-radius:10px;padding:11px;cursor:pointer;font-family:inherit">OK</button>
+    </div>
+  </div>
+</div>
+
+<template id="pristine"></template>
+
+<script>
+(function(){
+'use strict';
+var PASS='Hcfj1234', SK='hcf_panduan_v7';
+var SB_URL='https://aqqtuowzltsrgdnmpnum.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxcXR1b3d6bHRzcmdkbm1wbnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTcyOTMsImV4cCI6MjA5MzM5MzI5M30.nqQoDsN9yW140Q3Yv9of9A9cA_ZEYU2L6806Qc5Vonw';
+var SB_TABLE='hcf_store';
+var isAdmin=false, waNum='', saveTimer=null, toastTimer=null, mRes=null;
+
+var con=document.getElementById('app-content');
+document.getElementById('pristine').innerHTML=con.innerHTML;
+
+// ── Supabase storage ──
+var SB_HDR={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+async function cloudGet(k){
+  try{
+    var r=await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?key=eq.'+encodeURIComponent(k)+'&select=value',{headers:SB_HDR});
+    var d=await r.json();
+    return(d&&d.length)?d[0].value:null;
+  }catch(e){return null}
+}
+async function cloudSet(k,v){
+  try{
+    var r=await fetch(SB_URL+'/rest/v1/'+SB_TABLE,{
+      method:'POST',
+      headers:Object.assign({'Prefer':'resolution=merge-duplicates'},SB_HDR),
+      body:JSON.stringify({key:k,value:v,updated_at:new Date().toISOString()})
+    });
+    if(!r.ok){
+      var err=await r.json().catch(function(){return{}});
+      console.error('Supabase error',r.status,err);
+      toast('Error '+r.status+': '+(err.message||err.hint||err.code||JSON.stringify(err)));
+      return false;
+    }
+    return true;
+  }catch(e){
+    console.error('cloudSet exception',e);
+    toast('Ralat: '+e.message);
+    return false;
+  }
+}
+async function cloudDel(k){
+  try{
+    await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?key=eq.'+encodeURIComponent(k),{method:'DELETE',headers:SB_HDR});
+  }catch(e){}
+}
+
+// ── toast ──
+function toast(msg){
+  var el=document.getElementById('toast');
+  el.textContent=msg;el.style.opacity='1';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){el.style.opacity='0'},2600);
+}
+
+// ── modal ──
+function modal(opts){
+  opts=opts||{};
+  document.getElementById('modal-title').textContent=opts.title||'';
+  document.getElementById('modal-desc').textContent=opts.desc||'';
+  document.getElementById('modal-desc').style.display=opts.desc?'':'none';
+  var inp=document.getElementById('modal-input');
+  inp.style.display=opts.hideInput?'none':'';
+  if(!opts.hideInput){inp.type=opts.type||'text';inp.placeholder=opts.ph||'';inp.value=opts.val||'';}
+  document.getElementById('modal-overlay').style.display='flex';
+  if(!opts.hideInput)setTimeout(function(){inp.focus()},80);
+  return new Promise(function(r){mRes=r});
+}
+function closeModal(v){
+  document.getElementById('modal-overlay').style.display='none';
+  if(mRes){mRes(v);mRes=null}
+}
+document.getElementById('modal-ok').onclick=function(){
+  var inp=document.getElementById('modal-input');
+  closeModal(inp.style.display==='none'?true:inp.value);
+};
+document.getElementById('modal-cancel').onclick=function(){closeModal(null)};
+document.getElementById('modal-input').onkeydown=function(e){
+  if(e.key==='Enter')closeModal(this.value);
+  if(e.key==='Escape')closeModal(null);
+};
+
+// ── admin ──
+function setEditable(on){
+  document.querySelectorAll('.edit-block').forEach(function(el){el.contentEditable=on?'true':'false'});
+}
+function enterAdmin(){
+  isAdmin=true;document.body.classList.add('admin-mode');setEditable(true);
+  document.getElementById('lock-closed').style.display='none';
+  document.getElementById('lock-open').style.display='';
+  toast('Mod Admin aktif ✓');
+}
+function exitAdmin(){
+  isAdmin=false;document.body.classList.remove('admin-mode');setEditable(false);
+  document.getElementById('lock-closed').style.display='';
+  document.getElementById('lock-open').style.display='none';
+}
+
+// ── save/load ──
+async function saveHTML(silent){
+  if(!silent)toast('Menyimpan...');
+  var ok=await cloudSet(SK+'_html',con.innerHTML);
+  if(!silent)toast(ok?'Disimpan & dikongsi ✓':'Gagal simpan — cuba semula');
+}
+async function loadHTML(){
+  var v=await cloudGet(SK+'_html');
+  if(v)con.innerHTML=v;
+}
+function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(function(){saveHTML(true)},1500)}
+
+// ── nav ──
+function resetNav(){
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});
+  var p=document.querySelector('.tab-panel[data-panel="info"]');
+  var b=document.querySelector('.nav-btn[data-tab="info"]');
+  if(p)p.classList.add('active');
+  if(b)b.classList.add('active');
+  con.scrollTop=0;
+}
+function switchTab(name){
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.toggle('active',p.dataset.panel===name)});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name)});
+  con.scrollTop=0;
+}
+
+// ── whatsapp ──
+function updateWaDisplay(){
+  var el=document.getElementById('wa-display');
+  if(el)el.textContent=waNum?'Hantar ke: +'+waNum:'Nombor WhatsApp belum ditetapkan.';
+}
+async function loadWa(){var v=await cloudGet(SK+'_wa');if(v){waNum=v;updateWaDisplay()}}
+function sendWa(){
+  if(!waNum){toast('Admin belum tetapkan nombor WhatsApp');return}
+  var fids=[['Nama Asal','f-1'],['Nama Baru','f-2'],['Agama Terdahulu','f-3'],['Bangsa','f-4'],
+    ['Warganegara','f-5'],['No. IC / Pasport','f-6'],['Tarikh Lahir','f-7'],['Tempat Lahir','f-8'],
+    ['Status Perkahwinan','f-9'],['Alamat','f-10'],['Bahasa','f-11'],['Pendidikan','f-12'],
+    ['No. Tel / Emel','f-13'],['Pekerjaan','f-14'],['Alamat Kerja','f-15']];
+  var msg='*Maklumat Pendaftaran Mualaf - HCF Johor*\n\n',hasVal=false;
+  fids.forEach(function(f){
+    var el=document.getElementById(f[1]),v=el?el.value.trim():'';
+    if(v)hasVal=true;msg+=f[0]+': '+(v||'-')+'\n';
+  });
+  if(!hasVal){toast('Sila isi sekurang-kurangnya satu medan');return}
+  window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ── logo ──
+async function loadLogo(){
+  var v=await cloudGet(SK+'_logo');if(!v)return;
+  var img=document.getElementById('logo-img'),fb=document.getElementById('logo-fb');
+  if(img){img.src=v;img.style.display=''}
+  if(fb)fb.style.display='none';
+}
+function handleLogo(file){
+  if(!file)return;
+  var r=new FileReader();
+  r.onload=function(e){
+    var img=document.getElementById('logo-img'),fb=document.getElementById('logo-fb');
+    if(img){img.src=e.target.result;img.style.display=''}
+    if(fb)fb.style.display='none';
+    cloudSet(SK+'_logo',e.target.result);toast('Logo disimpan & dikongsi ✓');
+  };r.readAsDataURL(file);
+}
+
+// ── attachments ──
+function renderBox(id,name,data){
+  var box=document.getElementById(id);if(!box)return;
+  var isPdf=name&&name.toLowerCase().endsWith('.pdf');
+  if(data&&data.startsWith('data:image/')){
+    box.innerHTML=
+      '<a href="'+data+'" target="_blank" rel="noopener" title="Klik untuk buka" style="display:block;cursor:pointer">'+
+        '<img src="'+data+'" style="max-height:160px;width:auto;object-fit:contain;border-radius:8px;border:1px solid #e5e7eb;margin:0 auto;display:block;transition:opacity .2s" onmouseover="this.style.opacity=\'.8\'" onmouseout="this.style.opacity=\'1\'">'+
+        '<p style="font-size:10px;color:#166a4c;font-weight:600;margin:8px 0 0;text-align:center">✓ '+name+' — <span style="text-decoration:underline">Klik untuk buka</span></p>'+
+      '</a>';
+  } else if(data&&isPdf){
+    box.innerHTML=
+      '<a href="'+data+'" target="_blank" rel="noopener" title="Klik untuk buka PDF" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;text-decoration:none;cursor:pointer">'+
+        '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><text x="6" y="18" font-size="5" fill="#ef4444" stroke="none" font-weight="700">PDF</text></svg>'+
+        '<p style="font-size:12px;font-weight:700;color:#0c3b2d;margin:0;text-align:center">'+name+'</p>'+
+        '<p style="font-size:10px;color:#166a4c;font-weight:600;margin:0;text-decoration:underline">Klik untuk buka PDF</p>'+
+      '</a>';
+  } else if(data){
+    box.innerHTML=
+      '<a href="'+data+'" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;text-decoration:none;cursor:pointer">'+
+        '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#166a4c" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+
+        '<p style="font-size:12px;font-weight:700;color:#0c3b2d;margin:0">'+name+'</p>'+
+        '<p style="font-size:10px;color:#166a4c;font-weight:600;margin:0;text-decoration:underline">Klik untuk buka fail</p>'+
+      '</a>';
+  } else {
+    box.innerHTML='<div style="text-align:center;padding:20px"><p style="font-size:12px;color:#9ca3af;font-weight:500;margin:0">Belum ada lampiran</p><p style="font-size:10px;color:#d1d5db;margin:4px 0 0">JPG, PNG atau PDF</p></div>';
+  }
+}
+function loadAttachments(){
+  var v=lsGet(SK+'_files');if(!v)return;
+  try{var m=JSON.parse(v);Object.keys(m).forEach(function(k){if(m[k])renderBox('preview-'+k,m[k].name,m[k].data)})}catch(e){}
+}
+function handleFile(input){
+  var file=input&&input.files&&input.files[0];if(!file)return;
+  var key=(input.getAttribute('data-preview')||'').replace('preview-','');if(!key)return;
+  var r=new FileReader();
+  r.onload=function(e){
+    renderBox('preview-'+key,file.name,e.target.result);
+    var m={};try{var cur=lsGet(SK+'_files');if(cur)m=JSON.parse(cur)}catch(ex){}
+    m[key]={name:file.name,data:e.target.result};
+    lsSet(SK+'_files',JSON.stringify(m));toast('Lampiran '+key+' disimpan ✓');
+  };r.readAsDataURL(file);
+}
+
+// ── export ──
+function exportFile(){
+  var clone=document.documentElement.cloneNode(true);
+  clone.classList.remove('admin-mode');
+  clone.querySelectorAll('[contenteditable]').forEach(function(el){el.removeAttribute('contenteditable')});
+  ['#admin-bar','#admin-hint','#modal-overlay','#pristine','#toast'].forEach(function(s){
+    var el=clone.querySelector(s);if(el)el.remove();
+  });
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+clone.outerHTML],{type:'text/html;charset=utf-8'}));
+  a.download='panduan-pengislaman-mualaf-hcf-johor.html';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1000);
+  toast('Fail dimuat turun ✓');
+}
+
+// ── reset ──
+function resetContent(){
+  modal({title:'Set Semula',desc:'Semua suntingan akan dihapuskan. Teruskan?',hideInput:true}).then(async function(ok){
+    if(!ok)return;
+    con.innerHTML=document.getElementById('pristine').innerHTML;
+    await cloudDel(SK+'_html');resetNav();if(isAdmin)setEditable(true);toast('Disetel semula ✓');
+  });
+}
+
+// ── list clone ──
+function cloneRow(ref){
+  var c=ref.cloneNode(true);
+  c.querySelectorAll('.edit-block').forEach(function(el){el.textContent='Teks baharu';el.removeAttribute('data-key');if(isAdmin)el.contentEditable='true'});
+  var a=c.querySelector('.map-link');if(a){a.href='#';a.setAttribute('data-url','')}
+  return c;
+}
+
+// ── events ──
+document.addEventListener('click',function(e){
+  // tab
+  var tb=e.target.closest('[data-tab]');
+  if(tb&&!tb.closest('#admin-bar')){switchTab(tb.dataset.tab);return}
+  // accordion
+  var ah=e.target.closest('.acc-header');
+  if(ah){ah.closest('.acc-item').classList.toggle('open');return}
+  // edit map link
+  var elb=e.target.closest('.edit-link-btn');
+  if(elb&&isAdmin){
+    var wrap=elb.closest('li')||elb.closest('div');
+    var link=wrap&&wrap.querySelector('.map-link');
+    if(link){
+      modal({title:'Tukar Pautan Peta',ph:'https://maps.app.goo.gl/...',val:link.getAttribute('data-url')||''}).then(function(u){
+        if(!u)return;link.href=u.trim();link.setAttribute('data-url',u.trim());toast('Pautan dikemaskini ✓');scheduleSave();
+      });
+    }return;
+  }
+  // remove
+  var rb=e.target.closest('.remove-btn');
+  if(rb&&isAdmin){var li=rb.closest('li');if(li){li.remove();scheduleSave()}return}
+  // add
+  var ab=e.target.closest('[data-add]');
+  if(ab&&isAdmin){
+    var list=document.getElementById(ab.dataset.add);
+    if(list&&list.children.length){list.appendChild(cloneRow(list.children[0]));scheduleSave()}return;
+  }
+  // lock
+  if(e.target.closest('#admin-lock-btn')){
+    if(isAdmin){exitAdmin();return}
+    modal({title:'Log Masuk Admin',desc:'Masukkan kod admin.',ph:'Kod admin',type:'password'}).then(function(code){
+      if(code===null)return;
+      if(code===PASS)enterAdmin();else toast('Kod tidak betul');
+    });return;
+  }
+  if(e.target.closest('#btn-save')){saveHTML(false);return}
+  if(e.target.closest('#btn-export')){exportFile();return}
+  if(e.target.closest('#btn-reset')){resetContent();return}
+  if(e.target.closest('#btn-exit')){exitAdmin();return}
+  if(e.target.closest('#btn-wa')){
+    modal({title:'Tukar Nombor WhatsApp',desc:'Masukkan nombor lengkap (cth: 60123456789).',ph:'60123456789',val:waNum,type:'tel'}).then(function(v){
+      if(v===null)return;var n=v.replace(/\D/g,'');
+      if(!n){toast('Nombor tidak sah');return}
+      waNum=n;updateWaDisplay();cloudSet(SK+'_wa',n);toast('Nombor disimpan ✓');
+    });return;
+  }
+  if(e.target.closest('#btn-wa-send')){sendWa();return}
+});
+
+document.addEventListener('change',function(e){
+  if(e.target.id==='logo-input')handleLogo(e.target.files[0]);
+  else if(e.target.classList.contains('file-input'))handleFile(e.target);
+});
+
+con.addEventListener('input',function(e){if(isAdmin&&e.target.classList.contains('edit-block'))scheduleSave()});
+con.addEventListener('blur',function(e){if(isAdmin&&e.target.classList.contains('edit-block'))scheduleSave()},true);
+
+// ── boot ──
+(async function(){
+  await loadHTML();
+  resetNav();
+  if(isAdmin)setEditable(true);
+  await loadWa();
+  await loadLogo();
+  await loadAttachments();
+})();
+
+})();
+</script>
+</body>
+</html>

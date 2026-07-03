@@ -5,28 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="description" content="Panduan Pengurusan Pendaftaran Pengislaman Mualaf - Hidayah Centre Foundation Johor">
 <title>Panduan Pengislaman Mualaf - HCF Johor</title>
-<script src="https://cdn.tailwindcss.com/3.4.1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: {
-          sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-          display: ['"Amiri"', 'serif'],
-        },
-        colors: {
-          hcf: {
-            ink: '#1b2b22', cream: '#fbf7ee', deep: '#0c3b2d',
-            mid: '#166a4c', gold: '#c79a3d', goldsoft: '#e9c873'
-          }
-        }
-      }
-    }
-  }
-</script>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{
@@ -585,15 +566,48 @@
 (function(){
 'use strict';
 var PASS='Hcfj1234', SK='hcf_panduan_v7';
+var SB_URL='https://aqqtuowzltsrgdnmpnum.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxcXR1b3d6bHRzcmdkbm1wbnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MTcyOTMsImV4cCI6MjA5MzM5MzI5M30.nqQoDsN9yW140Q3Yv9of9A9cA_ZEYU2L6806Qc5Vonw';
+var SB_TABLE='hcf_store';
 var isAdmin=false, waNum='', saveTimer=null, toastTimer=null, mRes=null;
 
 var con=document.getElementById('app-content');
 document.getElementById('pristine').innerHTML=con.innerHTML;
 
-// ── storage ──
-function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
-function lsSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
-function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
+// ── Supabase storage ──
+var SB_HDR={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+async function cloudGet(k){
+  try{
+    var r=await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?key=eq.'+encodeURIComponent(k)+'&select=value',{headers:SB_HDR});
+    var d=await r.json();
+    return(d&&d.length)?d[0].value:null;
+  }catch(e){return null}
+}
+async function cloudSet(k,v){
+  try{
+    var r=await fetch(SB_URL+'/rest/v1/'+SB_TABLE,{
+      method:'POST',
+      headers:Object.assign({'Prefer':'resolution=merge-duplicates'},SB_HDR),
+      body:JSON.stringify({key:k,value:v,updated_at:new Date().toISOString()})
+    });
+    if(!r.ok){
+      var err=await r.json().catch(function(){return{}});
+      console.error('Supabase error',r.status,err);
+      toast('Error '+r.status+': '+(err.message||err.hint||err.code||JSON.stringify(err)));
+      return false;
+    }
+    return true;
+  }catch(e){
+    console.error('cloudSet exception',e);
+    toast('Ralat: '+e.message);
+    return false;
+  }
+}
+async function cloudDel(k){
+  try{
+    await fetch(SB_URL+'/rest/v1/'+SB_TABLE+'?key=eq.'+encodeURIComponent(k),{method:'DELETE',headers:SB_HDR});
+  }catch(e){}
+}
 
 // ── toast ──
 function toast(msg){
@@ -647,11 +661,15 @@ function exitAdmin(){
 }
 
 // ── save/load ──
-function saveHTML(silent){
-  var ok=lsSet(SK+'_html',con.innerHTML);
-  if(!silent)toast(ok?'Disimpan ✓':'Gagal — kandungan terlalu besar');
+async function saveHTML(silent){
+  if(!silent)toast('Menyimpan...');
+  var ok=await cloudSet(SK+'_html',con.innerHTML);
+  if(!silent)toast(ok?'Disimpan & dikongsi ✓':'Gagal simpan — cuba semula');
 }
-function loadHTML(){var v=lsGet(SK+'_html');if(v)con.innerHTML=v;}
+async function loadHTML(){
+  var v=await cloudGet(SK+'_html');
+  if(v)con.innerHTML=v;
+}
 function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(function(){saveHTML(true)},1500)}
 
 // ── nav ──
@@ -675,7 +693,7 @@ function updateWaDisplay(){
   var el=document.getElementById('wa-display');
   if(el)el.textContent=waNum?'Hantar ke: +'+waNum:'Nombor WhatsApp belum ditetapkan.';
 }
-function loadWa(){var v=lsGet(SK+'_wa');if(v){waNum=v;updateWaDisplay()}}
+async function loadWa(){var v=await cloudGet(SK+'_wa');if(v){waNum=v;updateWaDisplay()}}
 function sendWa(){
   if(!waNum){toast('Admin belum tetapkan nombor WhatsApp');return}
   var fids=[['Nama Asal','f-1'],['Nama Baru','f-2'],['Agama Terdahulu','f-3'],['Bangsa','f-4'],
@@ -692,8 +710,8 @@ function sendWa(){
 }
 
 // ── logo ──
-function loadLogo(){
-  var v=lsGet(SK+'_logo');if(!v)return;
+async function loadLogo(){
+  var v=await cloudGet(SK+'_logo');if(!v)return;
   var img=document.getElementById('logo-img'),fb=document.getElementById('logo-fb');
   if(img){img.src=v;img.style.display=''}
   if(fb)fb.style.display='none';
@@ -705,7 +723,7 @@ function handleLogo(file){
     var img=document.getElementById('logo-img'),fb=document.getElementById('logo-fb');
     if(img){img.src=e.target.result;img.style.display=''}
     if(fb)fb.style.display='none';
-    lsSet(SK+'_logo',e.target.result);toast('Logo disimpan ✓');
+    cloudSet(SK+'_logo',e.target.result);toast('Logo disimpan & dikongsi ✓');
   };r.readAsDataURL(file);
 }
 
@@ -752,10 +770,10 @@ function exportFile(){
 
 // ── reset ──
 function resetContent(){
-  modal({title:'Set Semula',desc:'Semua suntingan akan dihapuskan. Teruskan?',hideInput:true}).then(function(ok){
+  modal({title:'Set Semula',desc:'Semua suntingan akan dihapuskan. Teruskan?',hideInput:true}).then(async function(ok){
     if(!ok)return;
     con.innerHTML=document.getElementById('pristine').innerHTML;
-    lsDel(SK+'_html');resetNav();if(isAdmin)setEditable(true);toast('Disetel semula ✓');
+    await cloudDel(SK+'_html');resetNav();if(isAdmin)setEditable(true);toast('Disetel semula ✓');
   });
 }
 
@@ -811,7 +829,7 @@ document.addEventListener('click',function(e){
     modal({title:'Tukar Nombor WhatsApp',desc:'Masukkan nombor lengkap (cth: 60123456789).',ph:'60123456789',val:waNum,type:'tel'}).then(function(v){
       if(v===null)return;var n=v.replace(/\D/g,'');
       if(!n){toast('Nombor tidak sah');return}
-      waNum=n;updateWaDisplay();lsSet(SK+'_wa',n);toast('Nombor disimpan ✓');
+      waNum=n;updateWaDisplay();cloudSet(SK+'_wa',n);toast('Nombor disimpan ✓');
     });return;
   }
   if(e.target.closest('#btn-wa-send')){sendWa();return}
@@ -826,7 +844,14 @@ con.addEventListener('input',function(e){if(isAdmin&&e.target.classList.contains
 con.addEventListener('blur',function(e){if(isAdmin&&e.target.classList.contains('edit-block'))scheduleSave()},true);
 
 // ── boot ──
-loadHTML();resetNav();loadWa();loadLogo();loadAttachments();
+(async function(){
+  await loadHTML();
+  resetNav();
+  if(isAdmin)setEditable(true);
+  await loadWa();
+  await loadLogo();
+  await loadAttachments();
+})();
 
 })();
 </script>
